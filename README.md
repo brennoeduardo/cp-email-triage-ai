@@ -63,7 +63,7 @@ flowchart TD
 | `URGENTE` | Precisa de atenção nas próximas 48h. |
 | `PROCESSADO POR IA` | A IA analisou e distribuiu. |
 | `ARQUIVADO POR IA` | A IA considerou que não precisa de atendimento. |
-| `Treinamento - IA` | Marcada **pela equipe**: exemplo do que a IA deve arquivar (veja [Ensinando a IA](#-ensinando-a-ia-com-exemplos)). |
+| `Treinamento - IA` | Marcada **pela equipe**: exemplo que a IA consulta quando está em dúvida (veja [Ensinando a IA](#-ensinando-a-ia-com-exemplos)). |
 | `ERRO IA` | Algo deu errado na análise — o e-mail **continua na caixa de entrada** para alguém olhar. |
 
 ### 💬 Exemplo do aviso no Google Chat
@@ -83,15 +83,15 @@ flowchart TD
 
 ## 🎓 Ensinando a IA com exemplos
 
-A equipe pode **ensinar a IA o que deve ser arquivado** sem mexer em código:
+A equipe pode dar à IA **exemplos reais do que não precisa de atendimento**, sem mexer em código. É um reforço: a IA continua decidindo pelas mesmas regras e **só consulta os exemplos quando fica em dúvida**.
 
 1. No Gmail, aplique a etiqueta **`Treinamento - IA`** em e-mails que **não** precisam de atendimento (aquele aviso automático de sempre, a newsletter de um fornecedor, a confirmação de um sistema…).
-2. Pronto. Na próxima execução, a IA recebe esses e-mails (assunto, remetente e um trecho) como exemplos reais e passa a **arquivar os parecidos** em vez de distribuí-los.
+2. Pronto. Na próxima execução, a IA recebe esses e-mails (assunto, remetente e um trecho) como material de consulta.
 
 | | |
 |---|---|
+| 🧭 **As regras continuam mandando** | Os exemplos só pesam quando a IA está em dúvida; o que está claro pelas regras não muda. |
 | 📌 **Os exemplos nunca são distribuídos** | E-mails com essa etiqueta ficam fora da triagem e podem continuar na caixa de entrada. |
-| 🛡️ **A segurança continua valendo** | Alteração bancária nunca é arquivada, e um e-mail parecido com um exemplo ainda vai para alguém se pedir pagamento, documento ou prazo. |
 | ⏱️ **Vale em até 1 hora** | Os exemplos ficam guardados por 60 min. Para valer na hora, rode `limparCacheTreinamento()`. |
 | 🔢 **Até 30 exemplos** | Os mais recentes da etiqueta. O limite fica em `MAX_EXEMPLOS_TREINAMENTO`, no `config.gs`. |
 
