@@ -1,0 +1,5 @@
+# Só os arquivos do projeto sobem para o Apps Script:
+# os .gs da raiz e o manifesto. Todo o resto (README, modelos/, .git...) fica de fora.
+**/**
+!*.gs
+!appsscript.json
