@@ -31,10 +31,6 @@ const CONFIG = {
   MAX_MENSAGENS_HISTORICO: 2,
   MAX_CHARS_HISTORICO: 1200,
 
-  // Endereços do setor (caixa principal e aliases). Usados para a IA saber
-  // se o setor está em PARA ou só em CÓPIA. Se vazio, usa a conta que roda o script.
-  EMAILS_SETOR: [],
-
   // Se a IA quiser arquivar mas a confiança for menor que isto, o e-mail é
   // DISTRIBUÍDO mesmo assim (é melhor alguém olhar do que perder um e-mail).
   CONFIANCA_MINIMA_ARQUIVAR: 70,
@@ -65,7 +61,7 @@ const CONFIG = {
  *
  * Propriedades do Script usadas:
  *   CHAT_WEBHOOK_URL   → webhook do espaço do Google Chat
- *   EMAIL_<NOME>       → e-mail FUNPAR de cada responsável, para @mencionar
+ *   EMAIL_<NOME>       → e-mail institucional de cada responsável, para @mencionar
  *                        (ex.: EMAIL_EDUARDO). Sem a propriedade, aparece
  *                        só o nome. A pessoa precisa ser membro do espaço.
  */
@@ -82,44 +78,46 @@ const LABELS = {
   PROCESSADO_IA: "PROCESSADO POR IA",
   ERRO_IA: "ERRO IA", // e-mails que falharam na classificação (revisão manual)
   URGENTE: "URGENTE", // e-mails distribuídos que a IA considerou urgentes
-  TREINAMENTO: "Treinamento - IA" // exemplos marcados pela equipe: devem ser arquivados
+  TREINAMENTO: "Treinamento - IA" // exemplos marcados pela equipe, consultados em caso de dúvida
 };
 
 /**
- * Responsáveis pela triagem. A ORDEM define o rodízio (round-robin).
- * O nome também é o nome da etiqueta aplicada na distribuição.
+ * Tipos comuns a todas as unidades. Os tipos do setor ficam em UNIDADE.TIPOS
+ * (unidade.gs).
  */
-const RESPONSAVEIS = [
-  "EDUARDO",
-  "IAN",
-  "NATALIA",
-  "ANDRESSA",
-  "BRENNO"
+const TIPOS_GERAIS = [
+  { codigo: "INFORMACAO", nome: "Informação", descricao: "comunicado informativo" },
+  { codigo: "NEWSLETTER", nome: "Newsletter", descricao: "boletim ou newsletter" },
+  { codigo: "MARKETING",  nome: "Marketing",  descricao: "publicidade, promoção" },
+  { codigo: "EVENTO",     nome: "Evento",     descricao: "convite, evento, webinar" },
+  { codigo: "SPAM",       nome: "Spam",       descricao: "spam ou golpe evidente" },
+  { codigo: "OUTROS",     nome: "Outros",     descricao: "nenhum dos anteriores" }
 ];
 
 /**
- * Valores permitidos no retorno do modelo (usados na validação).
+ * Todos os tipos aceitos: os do setor primeiro, depois os gerais.
+ * É uma função (e não const) porque depende de unidade.gs, e a ordem de
+ * carregamento dos arquivos no Apps Script não é garantida.
+ * @returns {{codigo:string, nome:string, descricao:string}[]}
  */
-const TIPOS_VALIDOS = [
-  "SOLICITACAO_PAGAMENTO",
-  "NOTA_FISCAL",
-  "BOLETO",
-  "COBRANCA",
-  "FORNECEDOR",
-  "ALTERACAO_BANCARIA",
-  "COMPROVANTE",
-  "CANCELAMENTO",
-  "CONTRATO",
-  "ORDEM_FORNECIMENTO",
-  "PRESTACAO_CONTAS",
-  "REEMBOLSO",
-  "CADASTRO_FORNECEDOR",
-  "INFORMACAO",
-  "NEWSLETTER",
-  "MARKETING",
-  "EVENTO",
-  "SPAM",
-  "OUTROS"
-];
+function obterTipos() {
+  return UNIDADE.TIPOS.concat(TIPOS_GERAIS);
+}
+
+/**
+ * Códigos permitidos no retorno do modelo (usados na validação).
+ * @returns {string[]}
+ */
+function obterTiposValidos() {
+  return obterTipos().map(t => t.codigo);
+}
+
+/**
+ * Nome amigável de um tipo, para exibir no aviso.
+ */
+function nomeTipo(codigo) {
+  const tipo = obterTipos().find(t => t.codigo === codigo);
+  return tipo ? tipo.nome : "Outros";
+}
 
 const PRIORIDADES_VALIDAS = ["BAIXA", "NORMAL", "ALTA"];

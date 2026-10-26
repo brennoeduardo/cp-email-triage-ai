@@ -82,7 +82,7 @@ function montarBlocoExemplos(exemplos) {
 
 Decida sempre pelas regras acima; elas têm prioridade.
 
-Os e-mails abaixo são exemplos reais que a equipe de Contas a Pagar
+Os e-mails abaixo são exemplos reais que a equipe de ${UNIDADE.NOME}
 considerou que NÃO precisam de atendimento. Consulte-os apenas quando estiver
 em dúvida se o e-mail precisa ou não de atendimento: se ele for claramente do
 mesmo tipo de um exemplo, isso indica que pode ser arquivado.

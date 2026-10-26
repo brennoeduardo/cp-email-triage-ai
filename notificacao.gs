@@ -12,25 +12,6 @@
 const COR_URGENTE = "#d93025";
 const COR_SECUNDARIA = "#5f6368";
 
-// Nome amigável de cada tipo para exibir no card.
-const NOMES_TIPO = {
-  SOLICITACAO_PAGAMENTO: "Solicitação de pagamento",
-  NOTA_FISCAL: "Nota fiscal",
-  BOLETO: "Boleto",
-  COBRANCA: "Cobrança",
-  FORNECEDOR: "Fornecedor",
-  ALTERACAO_BANCARIA: "Alteração bancária",
-  COMPROVANTE: "Comprovante",
-  CANCELAMENTO: "Cancelamento",
-  CONTRATO: "Contrato",
-  ORDEM_FORNECIMENTO: "Ordem de fornecimento",
-  PRESTACAO_CONTAS: "Prestação de contas",
-  REEMBOLSO: "Reembolso",
-  CADASTRO_FORNECEDOR: "Cadastro de fornecedor",
-  INFORMACAO: "Informação",
-  OUTROS: "Outros"
-};
-
 /**
  * @param {Object[]} distribuidos itens gerados por montarDistribuicao()
  */
@@ -154,7 +135,7 @@ function obterEmailResponsavel(responsavel) {
 
 /**
  * O Chat só menciona pelo ID numérico do usuário (o mesmo da People API).
- * Busca o ID no diretório da FUNPAR pelo e-mail e guarda nas Propriedades
+ * Busca o ID no diretório da organização pelo e-mail e guarda nas Propriedades
  * do Script, para consultar o diretório só na primeira vez.
  * Aceita também o ID numérico direto na propriedade EMAIL_<NOME>.
  * @returns {string|null}
@@ -193,7 +174,7 @@ function obterIdChat(email) {
  * Widgets de um e-mail: etiqueta do tipo, assunto, resumo, remetente e botão.
  */
 function widgetsDoItem(item) {
-  const tipo = NOMES_TIPO[item.tipo] || "Outros";
+  const tipo = nomeTipo(item.tipo);
 
   let texto = `<b>${escaparHtml(item.assunto) || "(sem assunto)"}</b>`;
   if (item.urgente) {

@@ -91,8 +91,8 @@ function obterHistorico(mensagens) {
  * @returns {string[]}
  */
 function obterEmailsSetor() {
-  const lista = CONFIG.EMAILS_SETOR.length
-    ? CONFIG.EMAILS_SETOR
+  const lista = UNIDADE.EMAILS_SETOR.length
+    ? UNIDADE.EMAILS_SETOR
     : [Session.getEffectiveUser().getEmail()];
   return lista.filter(Boolean).map(e => e.toLowerCase());
 }
@@ -118,7 +118,7 @@ function truncar(texto, limite) {
 /**
  * Link para abrir a conversa no Gmail.
  * Usa o e-mail da conta dona da caixa (a que roda o script) no lugar do
- * índice "u/0". Assim o Gmail abre direto na conta do Contas a Pagar,
+ * índice "u/0". Assim o Gmail abre direto na conta do setor,
  * mesmo que a pessoa esteja usando a conta pessoal como principal,
  * desde que ela também esteja logada na conta do setor no navegador.
  */

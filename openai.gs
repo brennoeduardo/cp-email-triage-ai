@@ -19,7 +19,7 @@ function obterSchemaClassificacao() {
                "motivoUrgencia", "confianca", "motivo", "resumo"],
     properties: {
       precisaAtendimento: { type: "boolean" },
-      tipo: { type: "string", enum: TIPOS_VALIDOS },
+      tipo: { type: "string", enum: obterTiposValidos() },
       prioridade: { type: "string", enum: PRIORIDADES_VALIDAS },
       urgente: { type: "boolean" },
       motivoUrgencia: { type: "string" },
@@ -202,7 +202,7 @@ function validarResultado(r) {
 
   const precisa = r.precisaAtendimento === true || r.precisaAtendimento === "true";
 
-  const tipo = TIPOS_VALIDOS.includes(r.tipo) ? r.tipo : "OUTROS";
+  const tipo = obterTiposValidos().includes(r.tipo) ? r.tipo : "OUTROS";
 
   let prioridade = PRIORIDADES_VALIDAS.includes(r.prioridade)
     ? r.prioridade

@@ -117,20 +117,23 @@ A automação foi pensada para **errar para o lado seguro**:
 
 ```
 📁 cp-email-triage-ai
-├── ⚙️ config.gs          Configurações: modelo, limites, etiquetas, equipe, tipos
+├── 🏢 unidade.gs         Perfil do setor: nome, equipe, tipos e regras da IA
+├── ⚙️ config.gs          Configurações técnicas: modelo, limites, etiquetas
 ├── ▶️ main.gs            Fluxo principal (executarFluxo)
 ├── ⏰ triggers.gs        Instala/remove o gatilho de 10 minutos
 ├── 📥 gmail.gs           Busca, leitura, etiquetas e arquivamento no Gmail
 ├── 🧠 classificador.gs   Ponto único de classificação (fácil trocar de provedor)
 ├── 🤖 openai.gs          Chamada à OpenAI, retentativas e validação da resposta
-├── 📝 prompts.gs         Instruções que ensinam a IA as regras do setor
+├── 📝 prompts.gs         Esqueleto das instruções da IA (comum a todas as unidades)
 ├── 🎓 treinamento.gs     Lê os exemplos da etiqueta "Treinamento - IA"
 ├── ⚖️ exec.gs            Decide e executa: arquivar ou distribuir
 ├── 👥 distribuidor.gs    Rodízio entre os responsáveis
 ├── 📣 notificacao.gs     Card com o resumo no Google Chat
 ├── 🧪 testes.gs          Testes manuais e diagnóstico
 ├── 🧪 emailsTeste.gs     Cria e-mails fictícios na caixa para testar
-└── 📄 appsscript.json    Manifesto: fuso, serviços e permissões
+├── 📄 appsscript.json    Manifesto: fuso, serviços e permissões
+└── 📁 modelos/
+    └── unidade-modelo.gs  Modelo em branco para uma nova unidade
 ```
 
 ---
@@ -163,7 +166,10 @@ Rode **`instalarGatilho()`** uma única vez. A partir daí, `executarFluxo()` ro
 
 ## ⚙️ Personalizando
 
-Tudo que costuma mudar fica em [`config.gs`](config.gs):
+A configuração fica em dois arquivos:
+
+- [`unidade.gs`](unidade.gs): **o que é do setor**: nome, e-mails do setor (`EMAILS_SETOR`), equipe do rodízio (`RESPONSAVEIS`, na ordem do rodízio), tipos de e-mail e as **regras de negócio** que a IA segue (o que precisa de atendimento, o que é urgente, regras da casa e exemplos), tudo escrito em português simples.
+- [`config.gs`](config.gs): **ajustes técnicos**, iguais para qualquer unidade:
 
 | Configuração | Padrão | O que faz |
 |---|---|---|
@@ -172,11 +178,38 @@ Tudo que costuma mudar fica em [`config.gs`](config.gs):
 | `MODELO` | `gpt-5-mini` | Modelo da OpenAI usado na classificação. |
 | `ESFORCO_RACIOCINIO` | `low` | Quanto a IA "pensa": mais esforço = mais cuidadoso, porém mais lento e caro. |
 | `CONFIANCA_MINIMA_ARQUIVAR` | `70` | Abaixo disso, o e-mail é distribuído em vez de arquivado. |
-| `EMAILS_SETOR` | `[]` | Endereços do setor, para a IA saber quando ele está só em cópia. |
-| `RESPONSAVEIS` | equipe | Quem participa do rodízio — a ordem da lista é a ordem do rodízio. |
 | `NOTIFICACAO.ATIVO` | `true` | Liga/desliga o aviso no Google Chat. |
 
-As **regras de negócio** que a IA segue (o que é urgente, o que pode ser arquivado, regras específicas da FUNPAR) estão escritas em português simples em [`prompts.gs`](prompts.gs) — para ajustar o comportamento, normalmente basta editar esse texto.
+---
+
+## 🏢 Usar em outra unidade
+
+O projeto já está pronto para atender outros setores (Contas a Receber, Compras…). Tudo o que é do Contas a Pagar está concentrado em **um único arquivo**, o [`unidade.gs`](unidade.gs). O resto do código é igual para todas as unidades.
+
+Cada unidade roda num **projeto próprio do Apps Script**, criado na conta Google dona da caixa de e-mail daquele setor.
+
+**Checklist para uma nova unidade:**
+
+1. **Projeto:** na conta do e-mail do setor, crie um projeto em [script.google.com](https://script.google.com) e copie todos os arquivos `.gs` e o `appsscript.json`, **menos** a pasta `modelos/`.
+2. **Perfil:** substitua o conteúdo do `unidade.gs` pelo de [`modelos/unidade-modelo.gs`](modelos/unidade-modelo.gs) e preencha o que está entre `< >`:
+
+   | Campo | O que colocar |
+   |---|---|
+   | `NOME` | Nome do setor, ex.: *Contas a Receber* |
+   | `EMAILS_SETOR` | Endereços do setor (opcional) |
+   | `TIPOS` | Os tipos de e-mail que o setor atende (os gerais, como newsletter e spam, já vêm incluídos) |
+   | `PROMPT.PRECISA_ATENDIMENTO` | O que exige ação da equipe |
+   | `PROMPT.REGRAS_ESPECIFICAS` | Exceções e regras da casa |
+   | `PROMPT.URGENTE` / `NAO_URGENTE` | O que é e o que não é urgente |
+   | `PROMPT.DICAS_RESUMO` | O que destacar no resumo do Chat |
+   | `PROMPT.EXEMPLOS` | 3 a 6 e-mails típicos com a decisão esperada |
+   | `RESPONSAVEIS` | Equipe do rodízio, em MAIÚSCULAS |
+
+3. **Propriedades do Script:** `OPENAI_API_KEY`, `CHAT_WEBHOOK_URL` (do espaço do Chat **dessa** equipe) e `EMAIL_<NOME>` de cada responsável.
+4. **Testar sem mexer em nada:** deixe `SIMULAR: true` no `config.gs`, rode `testarClassificacaoIA()` e depois `executarFluxo()`, e confira no Log as decisões.
+5. **Ligar:** volte `SIMULAR` para `false` e rode `instalarGatilho()`.
+
+> 💡 Comece com regras simples e vá refinando com os casos reais. A etiqueta `Treinamento - IA` também funciona em qualquer unidade.
 
 ---
 

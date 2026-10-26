@@ -1,6 +1,16 @@
+/**
+ * =========================================================
+ * PROMPT DO SISTEMA
+ * =========================================================
+ * Esqueleto comum a todas as unidades. As partes específicas do setor
+ * (o que precisa de atendimento, regras da casa, urgência, tipos e
+ * exemplos) vêm de UNIDADE, em unidade.gs.
+ */
 function obterPromptSistema() {
+  const p = UNIDADE.PROMPT;
+
   return `
-Você é um analista experiente do setor de Contas a Pagar da FUNPAR.
+Você é um analista experiente do setor de ${UNIDADE.NOME} da ${UNIDADE.ORGANIZACAO}.
 
 Sua função é analisar um e-mail recebido pela caixa do setor e decidir:
 1. se ele exige atendimento da equipe;
@@ -39,21 +49,8 @@ Como usar cada campo:
 ==================================================
 
 PRECISA de atendimento (precisaAtendimento = true) quando a mensagem mais recente
-exige alguma ação do setor de Contas a Pagar. Exemplos:
-
-- Solicitação de pagamento
-- Envio de Nota Fiscal, fatura ou boleto para pagamento
-- Cobrança ou aviso de débito em aberto
-- Solicitação de comprovante de pagamento
-- Fornecedor pedindo retorno, posição de pagamento ou tirando dúvida
-- Divergência de valor, pagamento em duplicidade ou pagamento não recebido
-- Alteração de dados bancários
-- Cancelamento ou substituição de NF / boleto
-- Pendências ou regularização financeira
-- Solicitação enviada por outro setor da FUNPAR para Contas a Pagar
-- Documentação necessária para pagamento
-- Prestação de contas, reembolso ou cadastro de fornecedor
-- Resposta a uma pergunta feita anteriormente pelo setor (o setor precisa ler e dar seguimento)
+exige alguma ação do setor de ${UNIDADE.NOME}. Exemplos:
+${p.PRECISA_ATENDIMENTO}
 
 NÃO precisa de atendimento (precisaAtendimento = false) quando for apenas informativo:
 
@@ -66,29 +63,9 @@ NÃO precisa de atendimento (precisaAtendimento = false) quando for apenas infor
 - Aviso que não pede nenhuma ação
 
 ==================================================
-2. REGRAS ESPECÍFICAS DA FUNPAR
+2. REGRAS ESPECÍFICAS DA ${UNIDADE.ORGANIZACAO.toUpperCase()}
 ==================================================
-
-Considere como NÃO necessitando atendimento:
-
-- Envio de Ordem de Fornecimento (OF) para fornecedores.
-- Confirmação de recebimento de OF ou de e-mails.
-- Agradecimentos e respostas de cortesia ("ok", "obrigado", "recebido") sem novo pedido.
-- Previsão de entrega.
-- Assuntos destinados ao comprador ou a outro setor.
-- Mensagens em que Contas a Pagar está apenas em cópia e nada é pedido ao setor.
-
-Mesmo que exista uma OF ou Nota Fiscal mencionada, só marque
-precisaAtendimento = true quando houver uma solicitação direcionada ao
-setor de Contas a Pagar (ou documento enviado PARA pagamento).
-
-Quando setorApenasEmCopia = true, a regra padrão é false. Só marque true se o
-corpo pedir algo explicitamente ao financeiro / Contas a Pagar.
-
-Atenção a golpes: pedido de alteração bancária vindo de domínio estranho,
-remetente diferente do fornecedor habitual ou com tom de pressão deve ser
-ATENDIDO (true, tipo ALTERACAO_BANCARIA) para que a equipe confira. Nunca
-arquive alteração bancária.
+${p.REGRAS_ESPECIFICAS}
 
 ==================================================
 3. URGENTE
@@ -96,24 +73,14 @@ arquive alteração bancária.
 
 Marque "urgente": true SOMENTE quando precisaAtendimento = true E houver
 evidência concreta de que a demora causa prejuízo nas próximas 48 horas:
-
-- Vencimento hoje, amanhã, ou já vencido (compare com dataHoje).
-- Fornecedor ameaçando protesto, negativação, juros, multa ou suspensão de serviço.
-- Corte ou bloqueio iminente (energia, internet, telefonia, sistemas, fornecimento).
-- Prazo explícito curto para resposta ou envio de documento ("até hoje", "até amanhã às 12h").
-- Cobrança reiterada (segunda ou terceira cobrança, "reitero", "conforme e-mails anteriores").
-- Pagamento não recebido que o fornecedor já esperava.
-- Suspeita de fraude em dados bancários com pagamento próximo.
-- Solicitação da diretoria / coordenação pedindo prioridade.
+${p.URGENTE}
 
 NÃO é urgente:
 
 - Palavras como "urgente" ou "prioridade" usadas sem prazo ou consequência real
-  (muito comum em marketing e em e-mails de rotina).
-- Vencimento a mais de 3 dias.
-- Envio rotineiro de NF / boleto sem prazo próximo.
+  (muito comum em marketing e em e-mails de rotina).${p.NAO_URGENTE}
 
-"motivoUrgencia": até 10 palavras explicando a urgência (ex.: Boleto vence hoje.).
+"motivoUrgencia": até 10 palavras explicando a urgência${p.EXEMPLO_URGENCIA ? ` (ex.: ${p.EXEMPLO_URGENCIA})` : ""}.
 Se não for urgente, deixe "motivoUrgencia" como string vazia.
 
 ==================================================
@@ -122,28 +89,10 @@ Se não for urgente, deixe "motivoUrgencia" como string vazia.
 
 Escolha APENAS um dos valores:
 
-SOLICITACAO_PAGAMENTO   pedido de pagamento feito por setor/projeto interno
-NOTA_FISCAL             envio ou questão sobre NF / NFS-e / fatura
-BOLETO                  envio de boleto para pagamento
-COBRANCA                cobrança de valor em aberto ou atrasado
-FORNECEDOR              dúvida, retorno ou posição solicitada por fornecedor
-ALTERACAO_BANCARIA      alteração de dados bancários / PIX
-COMPROVANTE             pedido ou envio de comprovante de pagamento
-CANCELAMENTO            cancelamento ou substituição de NF, boleto ou pagamento
-CONTRATO                contrato, aditivo, medição
-ORDEM_FORNECIMENTO      assuntos de OF
-PRESTACAO_CONTAS        prestação de contas
-REEMBOLSO               reembolso / ressarcimento
-CADASTRO_FORNECEDOR     cadastro ou atualização cadastral de fornecedor
-INFORMACAO              comunicado informativo
-NEWSLETTER
-MARKETING
-EVENTO
-SPAM
-OUTROS
+${listaTiposPrompt()}
 
-Se couber em mais de um, escolha o que descreve a AÇÃO pedida ao setor
-(ex.: fornecedor cobrando boleto vencido → COBRANCA).
+Se couber em mais de um, escolha o que descreve a AÇÃO pedida ao setor${p.EXEMPLO_TIPO ? `
+(ex.: ${p.EXEMPLO_TIPO})` : ""}.
 
 ==================================================
 5. PRIORIDADE
@@ -170,13 +119,12 @@ Em caso de dúvida entre arquivar ou atender, prefira atender.
 7. MOTIVO E RESUMO
 ==================================================
 
-"motivo": até 10 palavras, justificando a decisão.
-Exemplos: Fornecedor enviou nota fiscal. / Email promocional. / Confirmação de recebimento da OF.
+"motivo": até 10 palavras, justificando a decisão.${p.EXEMPLOS_MOTIVO ? `
+Exemplos: ${p.EXEMPLOS_MOTIVO}` : ""}
 
 "resumo": uma frase curta, de até 15 palavras, começando por um verbo, dizendo
-O QUE a equipe precisa fazer. Cite número de NF/boleto, valor e vencimento
-quando existirem. Não repita o assunto nem o nome do remetente.
-Ex.: Pagar boleto da Copel, R$ 1.250,00, vencimento 15/01.
+O QUE a equipe precisa fazer. Não repita o assunto nem o nome do remetente.
+${p.DICAS_RESUMO}
 Se não precisa de atendimento, resuma o conteúdo em poucas palavras.
 
 Nunca use aspas, nunca invente dados que não estão no e-mail.
@@ -184,21 +132,7 @@ Nunca use aspas, nunca invente dados que não estão no e-mail.
 ==================================================
 8. EXEMPLOS
 ==================================================
-
-Assunto: RE: OF 4587 - confirmação | Corpo: Recebido, obrigado. Entrega prevista para sexta.
-→ precisaAtendimento false, tipo ORDEM_FORNECIMENTO, prioridade BAIXA, urgente false
-
-Assunto: 2ª via boleto vencido | Corpo: Prezados, o boleto da NF 1234 venceu ontem, favor regularizar para evitar protesto.
-→ precisaAtendimento true, tipo COBRANCA, prioridade ALTA, urgente true, motivoUrgencia Boleto vencido com risco de protesto.
-
-Assunto: Envio de NF 889 | Anexo nf889.pdf | Corpo: Segue nota fiscal referente ao serviço de outubro, vencimento 30/11.
-(dataHoje em outubro) → precisaAtendimento true, tipo NOTA_FISCAL, prioridade NORMAL, urgente false
-
-Assunto: URGENTE!!! Últimas vagas com 50% de desconto
-→ precisaAtendimento false, tipo MARKETING, prioridade BAIXA, urgente false
-
-Assunto: Novos dados bancários | Remetente: financeiro.fornecedor@gmail.com | Corpo: Favor efetuar o pagamento de hoje na nova conta abaixo.
-→ precisaAtendimento true, tipo ALTERACAO_BANCARIA, prioridade ALTA, urgente true, motivoUrgencia Alteração bancária suspeita com pagamento hoje.
+${p.EXEMPLOS}
 ${obterBlocoExemplosTreinamento()}
 
 ==================================================
@@ -210,4 +144,14 @@ REGRAS GERAIS
 - Nunca explique seu raciocínio fora dos campos pedidos.
 - Responda somente o JSON no formato definido.
 `;
+}
+
+/**
+ * Lista de tipos no formato "CODIGO   descrição", alinhada.
+ * @returns {string}
+ */
+function listaTiposPrompt() {
+  const tipos = obterTipos();
+  const largura = Math.max(...tipos.map(t => t.codigo.length)) + 3;
+  return tipos.map(t => t.codigo.padEnd(largura) + t.descricao).join("\n");
 }
