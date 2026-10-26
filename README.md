@@ -63,6 +63,7 @@ flowchart TD
 | `URGENTE` | Precisa de atenção nas próximas 48h. |
 | `PROCESSADO POR IA` | A IA analisou e distribuiu. |
 | `ARQUIVADO POR IA` | A IA considerou que não precisa de atendimento. |
+| `Treinamento - IA` | Marcada **pela equipe**: exemplo do que a IA deve arquivar (veja [Ensinando a IA](#-ensinando-a-ia-com-exemplos)). |
 | `ERRO IA` | Algo deu errado na análise — o e-mail **continua na caixa de entrada** para alguém olhar. |
 
 ### 💬 Exemplo do aviso no Google Chat
@@ -77,6 +78,24 @@ flowchart TD
 > > **2ª via boleto vencido**
 > > Pagar boleto da NF 1234 vencido ontem para evitar protesto.
 > > `[ Abrir e-mail ]`
+
+---
+
+## 🎓 Ensinando a IA com exemplos
+
+A equipe pode **ensinar a IA o que deve ser arquivado** sem mexer em código:
+
+1. No Gmail, aplique a etiqueta **`Treinamento - IA`** em e-mails que **não** precisam de atendimento (aquele aviso automático de sempre, a newsletter de um fornecedor, a confirmação de um sistema…).
+2. Pronto. Na próxima execução, a IA recebe esses e-mails (assunto, remetente e um trecho) como exemplos reais e passa a **arquivar os parecidos** em vez de distribuí-los.
+
+| | |
+|---|---|
+| 📌 **Os exemplos nunca são distribuídos** | E-mails com essa etiqueta ficam fora da triagem e podem continuar na caixa de entrada. |
+| 🛡️ **A segurança continua valendo** | Alteração bancária nunca é arquivada, e um e-mail parecido com um exemplo ainda vai para alguém se pedir pagamento, documento ou prazo. |
+| ⏱️ **Vale em até 1 hora** | Os exemplos ficam guardados por 60 min. Para valer na hora, rode `limparCacheTreinamento()`. |
+| 🔢 **Até 30 exemplos** | Os mais recentes da etiqueta. O limite fica em `MAX_EXEMPLOS_TREINAMENTO`, no `config.gs`. |
+
+> 💡 **Dica:** prefira um exemplo de cada "tipo" de e-mail. Dez cópias do mesmo aviso ensinam o mesmo que uma.
 
 ---
 
@@ -105,6 +124,7 @@ A automação foi pensada para **errar para o lado seguro**:
 ├── 🧠 classificador.gs   Ponto único de classificação (fácil trocar de provedor)
 ├── 🤖 openai.gs          Chamada à OpenAI, retentativas e validação da resposta
 ├── 📝 prompts.gs         Instruções que ensinam a IA as regras do setor
+├── 🎓 treinamento.gs     Lê os exemplos da etiqueta "Treinamento - IA"
 ├── ⚖️ exec.gs            Decide e executa: arquivar ou distribuir
 ├── 👥 distribuidor.gs    Rodízio entre os responsáveis
 ├── 📣 notificacao.gs     Card com o resumo no Google Chat
@@ -172,6 +192,8 @@ As **regras de negócio** que a IA segue (o que é urgente, o que pode ser arqui
 | `testarClassificacaoIA()` | Classifica um e-mail fictício e mostra o resultado. |
 | `testarNotificacao()` | Envia um aviso de exemplo para o Google Chat. |
 | `criarEmailsTeste()` | Coloca e-mails fictícios `[TESTE]` na caixa (nada é enviado a ninguém). |
+| `testarExemplosTreinamento()` | Mostra quantos exemplos de treinamento a IA está recebendo e o texto exato enviado a ela. |
+| `limparCacheTreinamento()` | Faz os exemplos novos da etiqueta valerem já na próxima execução. |
 
 ---
 

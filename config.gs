@@ -46,7 +46,16 @@ const CONFIG = {
   BACKOFF_BASE_MS: 1500,
 
   // Tempo máximo (ms) para adquirir a trava de execução.
-  LOCK_TIMEOUT_MS: 5000
+  LOCK_TIMEOUT_MS: 5000,
+
+  // Exemplos de "pode arquivar" lidos da etiqueta LABELS.TREINAMENTO e
+  // enviados à IA junto com as instruções. Mais exemplos = mais tokens.
+  MAX_EXEMPLOS_TREINAMENTO: 30,
+  MAX_CHARS_EXEMPLO: 400,
+
+  // Por quantos minutos os exemplos ficam em cache antes de reler o Gmail.
+  // Ao marcar novos exemplos, rode limparCacheTreinamento() para valer na hora.
+  CACHE_TREINAMENTO_MIN: 60
 };
 
 /**
@@ -72,7 +81,8 @@ const LABELS = {
   ARQUIVADO_IA: "ARQUIVADO POR IA",
   PROCESSADO_IA: "PROCESSADO POR IA",
   ERRO_IA: "ERRO IA", // e-mails que falharam na classificação (revisão manual)
-  URGENTE: "URGENTE"  // e-mails distribuídos que a IA considerou urgentes
+  URGENTE: "URGENTE", // e-mails distribuídos que a IA considerou urgentes
+  TREINAMENTO: "Treinamento - IA" // exemplos marcados pela equipe: devem ser arquivados
 };
 
 /**

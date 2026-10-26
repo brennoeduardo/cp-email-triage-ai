@@ -65,7 +65,7 @@ function diagnosticarBusca() {
   const inbox = GmailApp.search("in:inbox", 0, 20);
   Logger.log(`E-mails na caixa de entrada (até 20): ${inbox.length}`);
 
-  const exclusoes = [LABELS.PROCESSADO_IA, LABELS.ARQUIVADO_IA, LABELS.ERRO_IA];
+  const exclusoes = [LABELS.PROCESSADO_IA, LABELS.ARQUIVADO_IA, LABELS.ERRO_IA, LABELS.TREINAMENTO];
   inbox.forEach(t => {
     const labels = t.getLabels().map(l => l.getName());
     const bloqueio = labels.filter(l => exclusoes.includes(l));
@@ -86,4 +86,15 @@ function testarMencoes() {
     const email = obterEmailResponsavel(nome);
     Logger.log(`${nome}: ${email || "(sem e-mail)"} → ${email ? obterIdChat(email) || "NÃO ENCONTRADO" : "-"}`);
   });
+}
+
+/**
+ * Mostra no Log quantos exemplos de treinamento a IA está recebendo e o
+ * texto exato que vai no prompt. Lê o Gmail na hora (ignora o cache).
+ */
+function testarExemplosTreinamento() {
+  limparCacheTreinamento();
+  const exemplos = lerExemplosTreinamento();
+  Logger.log(`Exemplos na etiqueta "${LABELS.TREINAMENTO}": ${exemplos.length}`);
+  Logger.log(montarBlocoExemplos(exemplos) || "(nenhum exemplo)");
 }

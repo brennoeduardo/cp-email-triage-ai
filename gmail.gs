@@ -7,13 +7,15 @@
 /**
  * Monta a query de busca, excluindo o que a IA já tratou.
  * Isso evita reprocessar e-mails caso o arquivamento falhe em algum momento.
+ * Os exemplos de treinamento também ficam de fora: são só referência para a IA.
  * @returns {string}
  */
 function construirQuery() {
   const exclusoes = [
     `-label:"${LABELS.PROCESSADO_IA}"`,
     `-label:"${LABELS.ARQUIVADO_IA}"`,
-    `-label:"${LABELS.ERRO_IA}"`
+    `-label:"${LABELS.ERRO_IA}"`,
+    `-label:"${LABELS.TREINAMENTO}"`
   ];
   return `in:inbox ${exclusoes.join(" ")}`;
 }

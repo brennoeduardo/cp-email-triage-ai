@@ -199,6 +199,7 @@ Assunto: URGENTE!!! Últimas vagas com 50% de desconto
 
 Assunto: Novos dados bancários | Remetente: financeiro.fornecedor@gmail.com | Corpo: Favor efetuar o pagamento de hoje na nova conta abaixo.
 → precisaAtendimento true, tipo ALTERACAO_BANCARIA, prioridade ALTA, urgente true, motivoUrgencia Alteração bancária suspeita com pagamento hoje.
+${obterBlocoExemplosTreinamento()}
 
 ==================================================
 REGRAS GERAIS
